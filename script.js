@@ -55,7 +55,7 @@ function renderCoversAndItems(json) {
 function renderBook(title, author, coverImage, id, finished) {
   var html = `
   <div class="container2 centerImage">
-  <a href="/book?id=${id + 1}">
+  <a href="./book?id=${id + 1}">
         <img `;
   if (!finished) {
     html += 'class="grayImage" ';
@@ -70,7 +70,7 @@ function renderBook(title, author, coverImage, id, finished) {
 }
 
 function renderListItem(title, author, coverImage, id) {
-  var html = `<a href="/book?id=${id + 1}">
+  var html = `<a href="./book?id=${id + 1}">
   <img class="tinyImage"
           alt="(img) "
           src="${coverImage}"
