@@ -1,0 +1,38 @@
+<!-- 
+This page makes use of the never used "toggle list view feature"
+ - basically, the list view is always being populated, so in this page
+ we simply make that list view hidden and the normal cover page not hidden
+-->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Nico's Book Notes</title>
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js"></script>
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="https://cdn.glitch.global/1292ad47-43e1-421e-ad8a-09250d36ca94/books_emoji.png"
+    />
+  </head>
+  <body>
+    
+    <center id="initLoading">
+     Loading... 
+    </center>
+
+    <!--     Covers -->
+    <div id="books" hidden="true">
+      <div class="row">
+        <div class="column" id="column1"></div>
+        <div class="column" id="column2"></div>
+        <div class="column" id="column3"></div>
+        <div class="column" id="column4"></div>
+      </div>
+    </div>
+
+    <!-- List view -->
+    <div id="listView"></div>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+body {
+  background-color: rgb(250, 249, 246);
+  font-family: Helvetica, sans-serif;
+  line-height: 1.625;
+
+  /* centers content */
+  border-style: solid;
+  border-color: rgb(250, 249, 246); /* same as background */
+  border-width: 2rem;
+}
+
+img {
+  max-width: 90%;
+}
+
+.grayImage {
+  filter: gray; /* IE6-9 */
+  -webkit-filter: grayscale(1); /* Google Chrome, Safari 6+ & Opera 15+ */
+  filter: grayscale(1); /* Microsoft Edge and Firefox 35+ */
+}
+
+button {
+  max-width: 12.5%;
+}
+
+.tinyImage {height: 1em;}
+
+/* https://www.w3schools.com/howto/howto_css_three_columns.asp */
+* {
+  box-sizing: border-box;
+}
+.row:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+.column {
+  float: left;
+  width: 25%;
+/*   padding: px; */
+/*   height: 300px; /* Should be removed. Only for demonstration */ 
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* https://stackoverflow.com/questions/28439310/scale-an-image-to-maximally-fit-available-space-and-center-it */
+/* +Chat GPT */
+
+.container2 {
+    width: 90vw;
+    max-width: 600px;
+/*     border: 2px solid blue; */
+    position: relative;
+}
+
+.centerImage {
+    width: 100%;
+    height: 20vh;
+    position: relative;
+    overflow: hidden;
+}
+
+.centerImage img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}

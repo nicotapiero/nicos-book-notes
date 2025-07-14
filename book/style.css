@@ -1,0 +1,17 @@
+.verticalLine {
+  border-left: 0.15rem solid;
+  padding-left: 0.5rem;
+}
+
+.brmedium {
+  display: block;
+  margin-bottom: 2em;
+}
+.brlarge {
+  display: block;
+  margin-bottom: 3em;
+}
+
+/* p {
+  font-size: 2em; 
+} */
