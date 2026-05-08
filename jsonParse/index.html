@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Highlights Renderer</title>
+
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 24px;
+      background: #fafafa;
+      color: #222;
+    }
+
+    h1 {
+      margin-bottom: 16px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 260px;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 12px;
+      box-sizing: border-box;
+      margin-bottom: 12px;
+    }
+
+    button {
+      padding: 10px 16px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-bottom: 20px;
+    }
+
+    .error {
+      color: red;
+      margin-bottom: 16px;
+      white-space: pre-wrap;
+    }
+
+    .meta {
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 12px;
+      vertical-align: top;
+      text-align: left;
+    }
+
+    th {
+      background: #f3f3f3;
+    }
+
+    tr:nth-child(even) {
+      background: #fafafa;
+    }
+
+    .note {
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Book Highlights Renderer</h1>
+
+  <textarea id="jsonInput" placeholder="Paste your JSON here..."></textarea>
+
+  <button id="renderBtn">Render</button>
+
+  <div id="error" class="error"></div>
+
+  <div id="output"></div>
+
+  <script>
+    const renderBtn = document.getElementById("renderBtn");
+    const jsonInput = document.getElementById("jsonInput");
+    const output = document.getElementById("output");
+    const errorBox = document.getElementById("error");
+
+    renderBtn.addEventListener("click", () => {
+      errorBox.textContent = "";
+      output.innerHTML = "";
+
+      try {
+        const data = JSON.parse(jsonInput.value);
+
+        if (!Array.isArray(data.entries)) {
+          throw new Error("JSON must contain an 'entries' array.");
+        }
+
+        renderBook(data);
+
+      } catch (err) {
+        errorBox.textContent = "Invalid JSON:\n" + err.message;
+      }
+    });
+
+    function renderBook(book) {
+      const rows = book.entries.map(entry => `
+        <tr>
+          <td>${escapeHtml(entry.text || "")}</td>
+          <td class="note">${entry.note ? escapeHtml(entry.note) : ""}</td>
+        </tr>
+      `).join("");
+
+      output.innerHTML = `
+        <h2>${escapeHtml(book.title || "Untitled")}</h2>
+
+        <div class="meta">
+          ${escapeHtml(book.author || "Unknown Author")}
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 75%">Text</th>
+              <th style="width: 25%">Note</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${rows}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+  </script>
+
+</body>
+</html>
