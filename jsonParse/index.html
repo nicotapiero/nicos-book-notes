@@ -121,29 +121,24 @@
 
     function renderBook(book) {
 
-      // Render all entries
+      // All entries
       const rows = book.entries.map(entry => `
         <tr>
           <td>${escapeHtml(entry.text || "")}</td>
-          <td class="note">
-            ${entry.note ? escapeHtml(entry.note) : ""}
-          </td>
+          <td class="note">${entry.note ? escapeHtml(entry.note) : ""}</td>
         </tr>
       `).join("");
 
-      // Filter only entries with notes
+      // Entries with notes only
       const notedEntries = book.entries.filter(entry =>
         entry.note &&
         entry.note.trim() !== ""
       );
 
-      // Render noted entries
       const notedRows = notedEntries.map(entry => `
         <tr>
           <td>${escapeHtml(entry.text || "")}</td>
-          <td class="note">
-            ${escapeHtml(entry.note)}
-          </td>
+          <td class="note">${escapeHtml(entry.note)}</td>
         </tr>
       `).join("");
 
