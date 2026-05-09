@@ -124,7 +124,7 @@
       // All entries
       const rows = book.entries.map(entry => `
         <tr>
-          <td>${escapeHtml(entry.text || "")}</td>
+          <td>${(entry.text || "").replace(/\r?\n/g, "\n\n")}</td>
           <td class="note">${entry.note ? escapeHtml(entry.note) : ""}</td>
         </tr>
       `).join("");
