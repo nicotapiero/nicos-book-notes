@@ -37,6 +37,7 @@
       font-size: 14px;
       cursor: pointer;
       margin-bottom: 20px;
+      margin-right: 8px;
     }
 
     .error {
@@ -89,7 +90,11 @@
 
   <textarea id="jsonInput" placeholder="Paste your JSON here..."></textarea>
 
-  <button id="renderBtn">Render</button>
+  <div>
+    <button id="renderBtn">Render</button>
+    <button id="copyBtn" style="display:none">Copy All for Sheets</button>
+    <button id="copyNotedBtn" style="display:none">Copy Noted for Sheets</button>
+  </div>
 
   <div id="error" class="error"></div>
 
@@ -97,13 +102,36 @@
 
   <script>
     const renderBtn = document.getElementById("renderBtn");
+    const copyBtn = document.getElementById("copyBtn");
+    const copyNotedBtn = document.getElementById("copyNotedBtn");
     const jsonInput = document.getElementById("jsonInput");
     const output = document.getElementById("output");
     const errorBox = document.getElementById("error");
 
+    let currentBook = null;
+
+    function tsvCell(str) {
+      const cleaned = (str || "").replace(/\r\n/g, "\n").replace(/\n/g, "\n\n");
+      return `"${cleaned.replace(/"/g, '""')}"`;
+    }
+
+    function copyEntries(entries, btn, label) {
+      const rows = entries.map(entry => `${tsvCell(entry.text)}\t${tsvCell(entry.note)}`);
+      const tsv = rows.join("\n");
+      navigator.clipboard.writeText(tsv).then(() => {
+        btn.textContent = "Copied!";
+        setTimeout(() => btn.textContent = label, 2000);
+      }).catch(() => {
+        errorBox.textContent = "Failed to copy to clipboard.";
+      });
+    }
+
     renderBtn.addEventListener("click", () => {
       errorBox.textContent = "";
       output.innerHTML = "";
+      copyBtn.style.display = "none";
+      copyNotedBtn.style.display = "none";
+      currentBook = null;
 
       try {
         const data = JSON.parse(jsonInput.value);
@@ -112,22 +140,44 @@
           throw new Error("JSON must contain an 'entries' array.");
         }
 
+        currentBook = data;
         renderBook(data);
+        copyBtn.style.display = "inline";
+
+        const hasNoted = data.entries.some(e => e.note && e.note.trim() !== "");
+        if (hasNoted) copyNotedBtn.style.display = "inline";
 
       } catch (err) {
         errorBox.textContent = "Invalid JSON:\n" + err.message;
       }
     });
 
+    copyBtn.addEventListener("click", () => {
+      if (!currentBook) return;
+      copyEntries(currentBook.entries, copyBtn, "Copy All for Sheets");
+    });
+
+    copyNotedBtn.addEventListener("click", () => {
+      if (!currentBook) return;
+      const noted = currentBook.entries.filter(e => e.note && e.note.trim() !== "");
+      copyEntries(noted, copyNotedBtn, "Copy Noted for Sheets");
+    });
+
     function renderBook(book) {
 
       // All entries
-      const rows = book.entries.map(entry => `
-        <tr>
-          <td>${(entry.text || "").replace(/\r?\n/g, "\n\n")}</td>
-          <td class="note">${entry.note ? escapeHtml(entry.note) : ""}</td>
-        </tr>
-      `).join("");
+      const rows = book.entries.map(entry => {
+        const escapedText = (entry.text || "")
+          .split("\n")
+          .map(line => escapeHtml(line))
+          .join("<br><br>");
+        return `
+          <tr>
+            <td>${escapedText}</td>
+            <td class="note">${entry.note ? escapeHtml(entry.note) : ""}</td>
+          </tr>
+        `;
+      }).join("");
 
       // Entries with notes only
       const notedEntries = book.entries.filter(entry =>
@@ -135,12 +185,18 @@
         entry.note.trim() !== ""
       );
 
-      const notedRows = notedEntries.map(entry => `
-        <tr>
-          <td>${escapeHtml(entry.text || "")}</td>
-          <td class="note">${escapeHtml(entry.note)}</td>
-        </tr>
-      `).join("");
+      const notedRows = notedEntries.map(entry => {
+        const escapedText = (entry.text || "")
+          .split("\n")
+          .map(line => escapeHtml(line))
+          .join("<br><br>");
+        return `
+          <tr>
+            <td>${escapedText}</td>
+            <td class="note">${escapeHtml(entry.note)}</td>
+          </tr>
+        `;
+      }).join("");
 
       output.innerHTML = `
         <h2>${escapeHtml(book.title || "Untitled")}</h2>
@@ -197,7 +253,6 @@
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
-        .replace(/\r?\n/g, "\\n") // not html but added to not disturb formatting
         .replace(/'/g, "&#039;");
     }
   </script>
