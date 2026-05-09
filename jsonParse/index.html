@@ -17,6 +17,11 @@
       margin-bottom: 16px;
     }
 
+    h3 {
+      margin-top: 40px;
+      margin-bottom: 12px;
+    }
+
     textarea {
       width: 100%;
       height: 260px;
@@ -49,6 +54,7 @@
       width: 100%;
       border-collapse: collapse;
       background: white;
+      margin-bottom: 24px;
     }
 
     th, td {
@@ -68,6 +74,12 @@
 
     .note {
       white-space: pre-wrap;
+    }
+
+    .empty-state {
+      color: #666;
+      font-style: italic;
+      margin-top: 8px;
     }
   </style>
 </head>
@@ -108,10 +120,30 @@
     });
 
     function renderBook(book) {
+
+      // Render all entries
       const rows = book.entries.map(entry => `
         <tr>
           <td>${escapeHtml(entry.text || "")}</td>
-          <td class="note">${entry.note ? escapeHtml(entry.note) : ""}</td>
+          <td class="note">
+            ${entry.note ? escapeHtml(entry.note) : ""}
+          </td>
+        </tr>
+      `).join("");
+
+      // Filter only entries with notes
+      const notedEntries = book.entries.filter(entry =>
+        entry.note &&
+        entry.note.trim() !== ""
+      );
+
+      // Render noted entries
+      const notedRows = notedEntries.map(entry => `
+        <tr>
+          <td>${escapeHtml(entry.text || "")}</td>
+          <td class="note">
+            ${escapeHtml(entry.note)}
+          </td>
         </tr>
       `).join("");
 
@@ -121,6 +153,8 @@
         <div class="meta">
           ${escapeHtml(book.author || "Unknown Author")}
         </div>
+
+        <h3>All Highlights</h3>
 
         <table>
           <thead>
@@ -134,6 +168,31 @@
             ${rows}
           </tbody>
         </table>
+
+        <h3>Highlights With Notes</h3>
+
+        ${
+          notedEntries.length > 0
+            ? `
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width: 75%">Text</th>
+                    <th style="width: 25%">Note</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  ${notedRows}
+                </tbody>
+              </table>
+            `
+            : `
+              <div class="empty-state">
+                No highlights contain notes.
+              </div>
+            `
+        }
       `;
     }
 
