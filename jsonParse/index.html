@@ -197,6 +197,7 @@
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
         .replace(/"/g, "&quot;")
+        .replace(/\r?\n/g, "\\n") // not html but added to not disturb formatting
         .replace(/'/g, "&#039;");
     }
   </script>
