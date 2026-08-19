@@ -82,13 +82,72 @@
       font-style: italic;
       margin-top: 8px;
     }
+
+    .help-text {
+      background: #eef4ff;
+      border: 1px solid #cddcf7;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .help-text code {
+      background: #dfe9fb;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    #dropZone {
+      border: 2px dashed #aaa;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      color: #666;
+      margin-bottom: 16px;
+      background: #fff;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    #dropZone.dragover {
+      background: #eef4ff;
+      border-color: #6c93e0;
+      color: #333;
+    }
+
+    #dropZone button {
+      margin: 8px 0 0 0;
+    }
+
+    #fileName {
+      font-size: 13px;
+      color: #444;
+      margin-top: 6px;
+    }
   </style>
 </head>
 <body>
 
   <h1>Book Highlights Renderer</h1>
 
-  <textarea id="jsonInput" placeholder="Paste your JSON here..."></textarea>
+  <div class="help-text">
+    In KOReader, export your JSON via <strong>Tools</strong> (wrench/screwdriver icon) &rarr;
+    <strong>Export highlights</strong> &rarr; <strong>Export all notes in current book</strong>.
+    The file will be saved to <code>koreader/clipboard/&lt;book notes&gt;.json</code> &mdash;
+    grab it from there and either drop it below or paste its contents into the box.
+  </div>
+
+  <div id="dropZone">
+    Drag &amp; drop a highlights JSON file here, or
+    <br />
+    <button id="fileSelectBtn" type="button">Choose File</button>
+    <input type="file" id="fileInput" accept=".json,application/json" style="display:none" />
+    <div id="fileName"></div>
+  </div>
+
+  <textarea id="jsonInput" placeholder="...or paste your JSON here"></textarea>
 
   <div>
     <button id="renderBtn">Render</button>
@@ -108,7 +167,55 @@
     const output = document.getElementById("output");
     const errorBox = document.getElementById("error");
 
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("fileInput");
+    const fileSelectBtn = document.getElementById("fileSelectBtn");
+    const fileNameDiv = document.getElementById("fileName");
+
     let currentBook = null;
+
+    function loadFile(file) {
+      if (!file) return;
+      fileNameDiv.textContent = `Loaded: ${file.name}`;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        jsonInput.value = e.target.result;
+        renderBtn.click();
+      };
+      reader.onerror = () => {
+        errorBox.textContent = "Failed to read file.";
+      };
+      reader.readAsText(file);
+    }
+
+    fileSelectBtn.addEventListener("click", () => fileInput.click());
+
+    fileInput.addEventListener("change", () => {
+      if (fileInput.files.length > 0) {
+        loadFile(fileInput.files[0]);
+      }
+    });
+
+    ["dragenter", "dragover"].forEach(evt => {
+      dropZone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.add("dragover");
+      });
+    });
+
+    ["dragleave", "drop"].forEach(evt => {
+      dropZone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropZone.classList.remove("dragover");
+      });
+    });
+
+    dropZone.addEventListener("drop", (e) => {
+      const file = e.dataTransfer.files && e.dataTransfer.files[0];
+      if (file) loadFile(file);
+    });
 
     function tsvCell(str) {
       const cleaned = (str || "").replace(/\r\n/g, "\n").replace(/\n/g, "\n\n");
